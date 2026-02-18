@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Reconciliation Tool</title>
+
+<style>
+:root {
+  --primary: #2563eb;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --bg-light: #f4f6f9;
+  --bg-dark: #121212;
+  --card-light: #ffffff;
+  --card-dark: #1e1e1e;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg-light);
+  margin: 0;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: var(--card-light);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: gray;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #e8f5e9;
+  font-weight: bold;
+  text-align: center;
+  font-size: 18px;
+  color: var(--success);
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: right;
+}
+
+th {
+  text-align: left;
+  background: #f0f0f0;
+}
+
+.highlight {
+  font-weight: bold;
+  background: #e8f5e9;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.toggle-btn {
+  background: var(--primary);
+  color: white;
+}
+
+.reset-btn {
+  background: var(--danger);
+  color: white;
+  float: right;
+}
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 13px;
+  color: gray;
+}
+
+/* Dark Mode */
+body.dark {
+  background: var(--bg-dark);
+  color: #e0e0e0;
+}
+
+body.dark .container {
+  background: var(--card-dark);
+}
+
+body.dark input {
+  background: #2a2a2a;
+  color: white;
+  border: 1px solid #555;
+}
+
+body.dark th {
+  background: #2a2a2a;
+}
+
+body.dark .highlight {
+  background: #2e7d32;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Bank Reconciliation Tool</h2>
+<div class="subtitle">Fintech-Style CA Reconciliation System</div>
+
+<button class="toggle-btn" id="toggleMode">Switch to Dark Mode</button>
+<button class="reset-btn" onclick="resetFields()">Reset</button>
+
+<label>Bank Balance as per Books (₹)</label>
+<input type="number" id="bankBalance" value="0">
+
+<label>Add: Deposits in Transit (₹)</label>
+<input type="number" id="depositsInTransit" value="0">
+
+<label>Less: Outstanding Cheques (₹)</label>
+<input type="number" id="outstandingCheques" value="0">
+
+<label>Less: Bank Charges (₹)</label>
+<input type="number" id="bankCharges" value="0">
+
+<div class="result-box">
+Adjusted Bank Balance: ₹ <span id="adjustedBalance">0.00</span>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Amount (₹)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bank Balance (Books)</td>
+<td id="books">0.00</td>
+</tr>
+<tr>
+<td>Add: Deposits in Transit</td>
+<td id="addDeposits">0.00</td>
+</tr>
+<tr>
+<td>Less: Outstanding Cheques</td>
+<td id="lessCheques">0.00</td>
+</tr>
+<tr>
+<td>Less: Bank Charges</td>
+<td id="lessCharges">0.00</td>
+</tr>
+<tr class="highlight">
+<td>Adjusted Bank Balance</td>
+<td id="finalBalance">0.00</td>
+</tr>
+</tbody>
+</table>
+
+<footer>
+© 2026 Tamanna Sayyed | Built using HTML, CSS & JavaScript
+</footer>
+
+</div>
+
+<script>
+const bankBalance = document.getElementById("bankBalance");
+const depositsInTransit = document.getElementById("depositsInTransit");
+const outstandingCheques = document.getElementById("outstandingCheques");
+const bankCharges = document.getElementById("bankCharges");
+
+const adjustedBalance = document.getElementById("adjustedBalance");
+const books = document.getElementById("books");
+const addDeposits = document.getElementById("addDeposits");
+const lessCheques = document.getElementById("lessCheques");
+const lessCharges = document.getElementById("lessCharges");
+const finalBalance = document.getElementById("finalBalance");
+
+function formatINR(amount) {
+  return amount.toLocaleString('en-IN', {minimumFractionDigits: 2});
+}
+
+function updateBalance() {
+  const bBalance = parseFloat(bankBalance.value) || 0;
+  const deposits = parseFloat(depositsInTransit.value) || 0;
+  const outCheques = parseFloat(outstandingCheques.value) || 0;
+  const charges = parseFloat(bankCharges.value) || 0;
+
+  const adjusted = bBalance + deposits - outCheques - charges;
+
+  adjustedBalance.innerText = formatINR(adjusted);
+  books.innerText = formatINR(bBalance);
+  addDeposits.innerText = formatINR(deposits);
+  lessCheques.innerText = formatINR(outCheques);
+  lessCharges.innerText = formatINR(charges);
+  finalBalance.innerText = formatINR(adjusted);
+}
+
+function resetFields() {
+  bankBalance.value = 0;
+  depositsInTransit.value = 0;
+  outstandingCheques.value = 0;
+  bankCharges.value = 0;
+  updateBalance();
+}
+
+[bankBalance, depositsInTransit, outstandingCheques, bankCharges]
+.forEach(input => input.addEventListener("input", updateBalance));
+
+updateBalance();
+
+// Dark Mode Toggle
+document.getElementById("toggleMode").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  const btn = document.getElementById("toggleMode");
+  btn.innerText = document.body.classList.contains("dark") 
+    ? "Switch to Light Mode" 
+    : "Switch to Dark Mode";
+});
+</script>
+
+</body>
+</html>
