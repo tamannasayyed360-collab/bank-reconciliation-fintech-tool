@@ -89,5 +89,4 @@ All styles and scripts are embedded within the HTML file for simplicity.
 ## Author
 
 Tamanna Sayyed  
-Built using HTML, CSS & JavaScript  
-© 2026 Tamanna Sayyed
+© 2026 All Rights Reserved 
